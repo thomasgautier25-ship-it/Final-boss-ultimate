@@ -13,23 +13,50 @@
   <br><br>
 <input id="odds" placeholder="Cote (ex: 1.80)" />
 
-  <button onclick="predict()">Analyser</button>
-
-  <p id="result"></p>
-<script>
+  <button onclick="<script>
   function getElo(team) {
     const ratings = {
       "Paris": 1900,
       "Real Madrid": 1950,
       "Barcelone": 1930,
       "Bayern": 1920,
-      "Adversaire": 1700
+      "Marseille": 1750
     };
 
     return ratings[team] || 1800;
   }
 
   function predict() {
+    const teamA = document.getElementById("teamA").value.trim();
+    const teamB = document.getElementById("teamB").value.trim();
+    const odds = parseFloat(document.getElementById("odds").value);
+
+    if (!teamA || !teamB || !odds) {
+      document.getElementById("result").innerText = "Remplis tout ⚠️";
+      return;
+    }
+
+    const eloA = getElo(teamA);
+    const eloB = getElo(teamB);
+
+    const probA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
+    const percent = Math.round(probA * 100);
+
+    // proba bookmaker
+    const implied = (1 / odds) * 100;
+
+    let verdict = "";
+
+    if (percent > implied) {
+      verdict = "💰 VALUE BET (intéressant)";
+    } else {
+      verdict = "❌ Pas rentable";
+    }
+
+    document.getElementById("result").innerText =
+      teamA + " : " + percent + "% | Bookmaker : " + Math.round(implied) + "% → " + verdict;
+  }
+  </script>() {
     const teamA = document.getElementById("teamA").value;
     const teamB = document.getElementById("teamB").value;
 
