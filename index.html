@@ -17,7 +17,23 @@ Bayern,Dortmund,1.60"></textarea>
 
 <br><br>
 
-<button onclick="<script>
+<button onclick="scan()">Scanner 💰</button>
+
+<div id="result"></div>
+
+<script>
+function getElo(team) {
+  const ratings = {
+    "Paris": 1900,
+    "Marseille": 1750,
+    "Real Madrid": 1950,
+    "Barcelone": 1930,
+    "Bayern": 1920,
+    "Dortmund": 1850
+  };
+  return ratings[team] || 1800;
+}
+
 function scan() {
   const input = document.getElementById("matches").value;
   const lines = input.split("\n");
@@ -50,14 +66,14 @@ function scan() {
         " → " + percent + "% / " + implied + "% " + verdict + "<br>";
 
     } catch (e) {
-      output += "⚠️ Erreur sur ligne : " + line + "<br>";
+      output += "⚠️ Erreur : " + line + "<br>";
     }
   });
 
   document.getElementById("result").innerHTML =
     output || "Aucun résultat ⚠️";
 }
-      </script>
+</script>
 
 </body>
-  </html>
+</html>
