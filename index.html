@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Final Boss Ultimate - Multi</title>
+</head>
+
+<body style="background:black; color:white; text-align:center; font-family:sans-serif;">
+
+<h1>🔥 Multi Match Scanner 🔥</h1>
+
+<p>Format : EquipeA,EquipeB,Cote</p>
+
+<textarea id="matches" rows="8" cols="30" placeholder="Paris,Marseille,1.80
+Real Madrid,Barcelone,2.10
+Bayern,Dortmund,1.60"></textarea>
+
+<br><br>
+
+<button onclick="scan()">Scanner 💰</button>
+
+<div id="result"></div>
+
+<script>
+function getElo(team) {
+  const ratings = {
+    "Paris": 1900,
+    "Marseille": 1750,
+    "Real Madrid": 1950,
+    "Barcelone": 1930,
+    "Bayern": 1920,
+    "Dortmund": 1850
+  };
+
+  return ratings[team.trim()] || 1800;
+}
+
+function scan() {
+  const input = document.getElementById("matches").value;
+  const lines = input.split("\n");
+
+  let output = "";
+
+  lines.forEach(line => {
+    if (!line.trim()) return;
+
+    const parts = line.split(",");
+    if (parts.length < 3) return;
+
+    const teamA = parts[0].trim();
+    const teamB = parts[1].trim();
+    const odds = parseFloat(parts[2]);
+
+    const eloA = getElo(teamA);
+    const eloB = getElo(teamB);
+
+    const probA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
+    const percent = Math.round(probA * 100);
+    const implied = Math.round((1 / odds) * 100);
+
+    let verdict = percent > implied 
+      ? "💰 VALUE BET" 
+      : "❌";
+
+    output += teamA + " vs " + teamB + 
+      " → " + percent + "% / " + implied + "% " + verdict + "<br>";
+  });
+
+  document.getElementById("result").innerHTML = output;
+}
+</script>
+
+</body>
+  </html>
