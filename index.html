@@ -8,24 +8,29 @@
 
   <h1>🔥 Final Boss Ultimate 🔥</h1>
 
-  <p id="match"></p>
-  <p id="prediction"></p>
+  <input id="teamA" placeholder="Equipe A" />
+  <input id="teamB" placeholder="Equipe B" />
+  <br><br>
 
-  <button onclick="predict()">Lancer Analyse</button>
+  <button onclick="predict()">Analyser</button>
+
+  <p id="result"></p>
 
   <script>
     function predict() {
-      const teamA = "Paris";
-      const teamB = "Adversaire";
+      const teamA = document.getElementById("teamA").value;
+      const teamB = document.getElementById("teamB").value;
 
-      // exemple simple basé sur ton info 5-2
-      let prob = 75;
+      if (!teamA || !teamB) {
+        document.getElementById("result").innerText = "Remplis les équipes ⚠️";
+        return;
+      }
 
-      document.getElementById("match").innerText =
-        teamA + " vs " + teamB;
+      // logique simple (tu upgraderas après)
+      let prob = Math.floor(Math.random() * 40) + 50;
 
-      document.getElementById("prediction").innerText =
-        "Probabilité victoire " + teamA + " : " + prob + "% 🔥";
+      document.getElementById("result").innerText =
+        "Victoire " + teamA + " : " + prob + "% 🔥";
     }
   </script>
 
