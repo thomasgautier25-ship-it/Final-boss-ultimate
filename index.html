@@ -2,55 +2,71 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Final Boss Ultimate</title>
+  <title>Final Boss Ultimate - Multi</title>
 </head>
 
 <body style="background:black; color:white; text-align:center; font-family:sans-serif;">
 
-<h1>🔥 Final Boss Ultimate 🔥</h1>
+<h1>🔥 Multi Match Scanner 🔥</h1>
 
-<input id="teamA" placeholder="Equipe A">
-<input id="teamB" placeholder="Equipe B">
+<p>Format : EquipeA,EquipeB,Cote</p>
+
+<textarea id="matches" rows="8" cols="30" placeholder="Paris,Marseille,1.80
+Real Madrid,Barcelone,2.10
+Bayern,Dortmund,1.60"></textarea>
+
 <br><br>
 
-<input id="odds" placeholder="Cote (ex: 1.80)">
-<br><br>
+<button onclick="scan()">Scanner 💰</button>
 
-<button onclick="predict()">Analyser</button>
-
-<p id="result"></p>
+<div id="result"></div>
 
 <script>
 function getElo(team) {
   const ratings = {
     "Paris": 1900,
-    "Marseille": 1750
+    "Marseille": 1750,
+    "Real Madrid": 1950,
+    "Barcelone": 1930,
+    "Bayern": 1920,
+    "Dortmund": 1850
   };
-  return ratings[team] || 1800;
+
+  return ratings[team.trim()] || 1800;
 }
 
-function predict() {
-  const teamA = document.getElementById("teamA").value.trim();
-  const teamB = document.getElementById("teamB").value.trim();
-  const odds = parseFloat(document.getElementById("odds").value);
+function scan() {
+  const input = document.getElementById("matches").value;
+  const lines = input.split("\n");
 
-  if (!teamA || !teamB || !odds) {
-    document.getElementById("result").innerText = "Remplis tout ⚠️";
-    return;
-  }
+  let output = "";
 
-  const eloA = getElo(teamA);
-  const eloB = getElo(teamB);
+  lines.forEach(line => {
+    if (!line.trim()) return;
 
-  const probA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
-  const percent = Math.round(probA * 100);
+    const parts = line.split(",");
+    if (parts.length < 3) return;
 
-  const implied = Math.round((1 / odds) * 100);
+    const teamA = parts[0].trim();
+    const teamB = parts[1].trim();
+    const odds = parseFloat(parts[2]);
 
-  let verdict = percent > implied ? "💰 VALUE BET" : "❌ Pas rentable";
+    const eloA = getElo(teamA);
+    const eloB = getElo(teamB);
 
-  document.getElementById("result").innerText =
-    teamA + " : " + percent + "% | Bookmaker : " + implied + "% → " + verdict;
+    const probA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
+    const percent = Math.round(probA * 100);
+    const implied = Math.round((1 / odds) * 100);
+
+    let verdict = percent > implied 
+      ? "💰 VALUE BET" 
+      : "❌";
+
+    output += teamA + " vs " + teamB + 
+      " → " + percent + "% / " + implied + "% " + verdict + "<br>";
+  });
+
+  document.getElementById("result").innerHTML = output;
 }
 </script>
 
