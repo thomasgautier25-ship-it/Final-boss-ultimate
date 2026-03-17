@@ -17,7 +17,6 @@
   <p id="result"></p>
 <script>
   function getElo(team) {
-    // base simple (tu upgraderas après)
     const ratings = {
       "Paris": 1900,
       "Real Madrid": 1950,
@@ -41,14 +40,13 @@
     const eloA = getElo(teamA);
     const eloB = getElo(teamB);
 
-    // formule ELO
     const probA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
     const percent = Math.round(probA * 100);
 
     document.getElementById("result").innerText =
       "Victoire " + teamA + " : " + percent + "% 🔥 (ELO)";
   }
-    </script>
+</script>
 
 </body>
 </html>
