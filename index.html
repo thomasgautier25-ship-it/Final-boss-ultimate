@@ -34,44 +34,9 @@ function getElo(team) {
   return ratings[team] || 1800;
 }
 
+<script>
 function scan() {
-  const input = document.getElementById("matches").value;
-  const lines = input.split("\n");
-
-  let output = "";
-
-  lines.forEach(line => {
-    try {
-      if (!line.trim()) return;
-
-      const parts = line.split(",");
-      if (parts.length < 3) return;
-
-      const teamA = parts[0].trim();
-      const teamB = parts[1].trim();
-      const odds = parseFloat(parts[2]);
-
-      if (!odds) return;
-
-      const eloA = getElo(teamA);
-      const eloB = getElo(teamB);
-
-      const probA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
-      const percent = Math.round(probA * 100);
-      const implied = Math.round((1 / odds) * 100);
-
-      let verdict = percent > implied ? "💰 VALUE BET" : "❌";
-
-      output += teamA + " vs " + teamB +
-        " → " + percent + "% / " + implied + "% " + verdict + "<br>";
-
-    } catch (e) {
-      output += "⚠️ Erreur : " + line + "<br>";
-    }
-  });
-
-  document.getElementById("result").innerHTML =
-    output || "Aucun résultat ⚠️";
+  document.getElementById("result").innerHTML = "TEST OK 🔥";
 }
 </script>
 
