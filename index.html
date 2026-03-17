@@ -17,24 +17,7 @@ Bayern,Dortmund,1.60"></textarea>
 
 <br><br>
 
-<button onclick="scan()">Scanner 💰</button>
-
-<div id="result"></div>
-
-<script>
-function getElo(team) {
-  const ratings = {
-    "Paris": 1900,
-    "Marseille": 1750,
-    "Real Madrid": 1950,
-    "Barcelone": 1930,
-    "Bayern": 1920,
-    "Dortmund": 1850
-  };
-
-  return ratings[team.trim()] || 1800;
-}
-
+<button onclick="<script>
 function scan() {
   const input = document.getElementById("matches").value;
   const lines = input.split("\n");
@@ -42,33 +25,39 @@ function scan() {
   let output = "";
 
   lines.forEach(line => {
-    if (!line.trim()) return;
+    try {
+      if (!line.trim()) return;
 
-    const parts = line.split(",");
-    if (parts.length < 3) return;
+      const parts = line.split(",");
+      if (parts.length < 3) return;
 
-    const teamA = parts[0].trim();
-    const teamB = parts[1].trim();
-    const odds = parseFloat(parts[2]);
+      const teamA = parts[0].trim();
+      const teamB = parts[1].trim();
+      const odds = parseFloat(parts[2]);
 
-    const eloA = getElo(teamA);
-    const eloB = getElo(teamB);
+      if (!odds) return;
 
-    const probA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
-    const percent = Math.round(probA * 100);
-    const implied = Math.round((1 / odds) * 100);
+      const eloA = getElo(teamA);
+      const eloB = getElo(teamB);
 
-    let verdict = percent > implied 
-      ? "💰 VALUE BET" 
-      : "❌";
+      const probA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
+      const percent = Math.round(probA * 100);
+      const implied = Math.round((1 / odds) * 100);
 
-    output += teamA + " vs " + teamB + 
-      " → " + percent + "% / " + implied + "% " + verdict + "<br>";
+      let verdict = percent > implied ? "💰 VALUE BET" : "❌";
+
+      output += teamA + " vs " + teamB +
+        " → " + percent + "% / " + implied + "% " + verdict + "<br>";
+
+    } catch (e) {
+      output += "⚠️ Erreur sur ligne : " + line + "<br>";
+    }
   });
 
-  document.getElementById("result").innerHTML = output;
+  document.getElementById("result").innerHTML =
+    output || "Aucun résultat ⚠️";
 }
-</script>
+      </script>
 
 </body>
   </html>
