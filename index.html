@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Final Boss Ultimate</title>
 </head>
+
 <body style="background:black; color:white; text-align:center; font-family:sans-serif;">
 
   <h1>🔥 Final Boss Ultimate 🔥</h1>
@@ -11,69 +12,56 @@
   <input id="teamA" placeholder="Equipe A" />
   <input id="teamB" placeholder="Equipe B" />
   <br><br>
-<input id="odds" placeholder="Cote (ex: 1.80)" />
 
-  <button onclick="<script>
-  function getElo(team) {
-    const ratings = {
-      "Paris": 1900,
-      "Real Madrid": 1950,
-      "Barcelone": 1930,
-      "Bayern": 1920,
-      "Marseille": 1750
-    };
+  <input id="odds" placeholder="Cote (ex: 1.80)" />
+  <br><br>
 
-    return ratings[team] || 1800;
+  <button onclick="predict()">Analyser</button>
+
+  <p id="result"></p>
+
+<script>
+function getElo(team) {
+  const ratings = {
+    "Paris": 1900,
+    "Real Madrid": 1950,
+    "Barcelone": 1930,
+    "Bayern": 1920,
+    "Marseille": 1750
+  };
+
+  return ratings[team] || 1800;
+}
+
+function predict() {
+  const teamA = document.getElementById("teamA").value.trim();
+  const teamB = document.getElementById("teamB").value.trim();
+  const odds = parseFloat(document.getElementById("odds").value);
+
+  if (!teamA || !teamB || !odds) {
+    document.getElementById("result").innerText = "Remplis tout ⚠️";
+    return;
   }
 
-  function predict() {
-    const teamA = document.getElementById("teamA").value.trim();
-    const teamB = document.getElementById("teamB").value.trim();
-    const odds = parseFloat(document.getElementById("odds").value);
+  const eloA = getElo(teamA);
+  const eloB = getElo(teamB);
 
-    if (!teamA || !teamB || !odds) {
-      document.getElementById("result").innerText = "Remplis tout ⚠️";
-      return;
-    }
+  const probA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
+  const percent = Math.round(probA * 100);
 
-    const eloA = getElo(teamA);
-    const eloB = getElo(teamB);
+  const implied = Math.round((1 / odds) * 100);
 
-    const probA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
-    const percent = Math.round(probA * 100);
+  let verdict = "";
 
-    // proba bookmaker
-    const implied = (1 / odds) * 100;
-
-    let verdict = "";
-
-    if (percent > implied) {
-      verdict = "💰 VALUE BET (intéressant)";
-    } else {
-      verdict = "❌ Pas rentable";
-    }
-
-    document.getElementById("result").innerText =
-      teamA + " : " + percent + "% | Bookmaker : " + Math.round(implied) + "% → " + verdict;
+  if (percent > implied) {
+    verdict = "💰 VALUE BET";
+  } else {
+    verdict = "❌ Pas rentable";
   }
-  </script>() {
-    const teamA = document.getElementById("teamA").value;
-    const teamB = document.getElementById("teamB").value;
 
-    if (!teamA || !teamB) {
-      document.getElementById("result").innerText = "Remplis les équipes ⚠️";
-      return;
-    }
-
-    const eloA = getElo(teamA);
-    const eloB = getElo(teamB);
-
-    const probA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
-    const percent = Math.round(probA * 100);
-
-    document.getElementById("result").innerText =
-      "Victoire " + teamA + " : " + percent + "% 🔥 (ELO)";
-  }
+  document.getElementById("result").innerText =
+    teamA + " : " + percent + "% | Bookmaker : " + implied + "% → " + verdict;
+}
 </script>
 
 </body>
