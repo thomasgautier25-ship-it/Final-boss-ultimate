@@ -1,19 +1,43 @@
-import { useState, useEffect } from "react";
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Final Boss Ultimate - Multi</title>
+</head>
 
-// ===== FINAL BOSS ULTIMATE (NEAR PRO DESK) ===== const API_KEY = "d53a3a5c2d1d3afefdaa4d068256294d"; const SPORT = "soccer";
+<body style="background:black; color:white; text-align:center; font-family:sans-serif;">
 
-const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+<h1>🔥 Multi Match Scanner 🔥</h1>
 
-// ===== SIMPLE ML-LIKE MODEL ===== function modelProbability(odds, historyBias = 0) { const market = 1 / odds; const adjusted = market * (1 + historyBias); return clamp(adjusted, 0.05, 0.95); }
+<p>Format : EquipeA,EquipeB,Cote</p>
 
-function calcEV(prob, odds) { return prob * (odds - 1) - (1 - prob); }
+<textarea id="matches" rows="8" cols="30" placeholder="Paris,Marseille,1.80
+Real Madrid,Barcelone,2.10
+Bayern,Dortmund,1.60"></textarea>
 
-export default function UltimateSystem() { const [bets, setBets] = useState([]); const [bankroll, setBankroll] = useState(() => parseFloat(localStorage.getItem("bankroll")) || 1000); const [history, setHistory] = useState(() => JSON.parse(localStorage.getItem("history") || "[]")); const [betLog, setBetLog] = useState(() => JSON.parse(localStorage.getItem("betLog") || "[]")); const [filterEV, setFilterEV] = useState(0.05);
+<br><br>
 
-// ===== AUTO LEARNING (CLV BASED) ===== const avgCLV = betLog.length ? betLog.reduce((s, b) => s + b.clv, 0) / betLog.length : 0;
+<button onclick="scan()">Scanner 💰</button>
 
-const modelBias = clamp(avgCLV * 0.1, -0.1, 0.1);
+<div id="result"></div>
 
-useEffect(() => { localStorage.setItem("bankroll", bankroll); localStorage.setItem("history", JSON.stringify(history)); localStorage.setItem("betLog", JSON.stringify(betLog)); }, [bankroll, history, betLog]);
+<script>
+function getElo(team) {
+  const ratings = {
+    "Paris": 1900,
+    "Marseille": 1750,
+    "Real Madrid": 1950,
+    "Barcelone": 1930,
+    "Bayern": 1920,
+    "Dortmund": 1850
+  };
+  return ratings[team] || 1800;
+}
 
-useEffect(() => { async function load() { const res = await fetch(`https://api.the-odds-api.com/v4/sports/${SPORT}/odds/?api
+function scan() {
+  document.getElementById("result").innerHTML = "TEST OK 🔥";
+}
+</script>
+
+</body>
+</html>
