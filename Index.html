@@ -1,79 +1,846 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Final Boss Ultimate - Multi</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Value Betting — Winamax AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080c10; --surface:#0e1318; --surface2:#111820; --border:#1a2230;
+  --green:#00e676; --red:#ff3d57; --gold:#ffd740; --blue:#40c4ff; --purple:#bf7cff;
+  --tennis:#a8ff3e; --football:#40c4ff;
+  --text:#e8f0fe; --muted:#4a5568;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,230,118,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,230,118,0.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0}
+.wrap{max-width:1060px;margin:0 auto;padding:40px 20px;position:relative;z-index:1}
+
+/* ── HEADER ── */
+.hdr{text-align:center;margin-bottom:52px}
+.hdr-tag{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--green);text-transform:uppercase;margin-bottom:14px;opacity:0;animation:up .5s .1s forwards}
+.hdr h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,11vw,104px);letter-spacing:6px;line-height:.88;background:linear-gradient(140deg,#fff 35%,var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;animation:up .5s .2s forwards}
+.hdr-sub{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-top:18px;opacity:0;animation:up .5s .3s forwards}
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── WINAMAX SCANNER ── */
+.scanner{background:var(--surface);border:1px solid rgba(255,215,64,.35);border-radius:22px;margin-bottom:28px;overflow:hidden;position:relative;opacity:0;animation:up .5s .32s forwards}
+.scanner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--football),var(--tennis))}
+.scanner-hdr{display:flex;align-items:center;gap:16px;padding:22px 28px;cursor:pointer;transition:background .2s}
+.scanner-hdr:hover{background:rgba(255,255,255,.02)}
+.wlogo{font-size:32px}
+.scanner-titles{flex:1}
+.scanner-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--gold)}
+.scanner-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:1.5px}
+.wbadge{background:rgba(255,215,64,.12);border:1px solid rgba(255,215,64,.4);border-radius:8px;padding:5px 12px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;white-space:nowrap}
+.toggler{font-family:'DM Mono',monospace;font-size:20px;color:var(--muted);margin-left:12px}
+.scanner-body{padding:0 28px 28px;display:none}
+.scanner-body.open{display:block}
+
+/* drop zone */
+.dropz{border:2px dashed var(--border);border-radius:14px;padding:38px 20px;text-align:center;cursor:pointer;transition:all .25s;position:relative;background:rgba(0,0,0,.25);margin-bottom:16px}
+.dropz:hover,.dropz.over{border-color:var(--gold);background:rgba(255,215,64,.04)}
+.dropz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-ic{font-size:44px;margin-bottom:10px}
+.drop-t{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;margin-bottom:6px}
+.drop-s{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);line-height:1.7}
+.drop-s strong{color:var(--gold)}
+
+/* preview */
+.prevwrap{position:relative;margin-bottom:14px;display:none}
+.previmg{width:100%;max-height:260px;object-fit:contain;border-radius:10px;border:1px solid var(--border);background:#000}
+.prevclear{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.8);border:1px solid var(--border);color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+
+/* extract info card */
+.extract-card{background:rgba(255,215,64,.05);border:1px solid rgba(255,215,64,.25);border-radius:12px;padding:16px 20px;margin-bottom:14px;display:none}
+.extract-card.show{display:block}
+.extract-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.extract-row{display:flex;gap:12px;flex-wrap:wrap}
+.extract-chip{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 14px}
+.extract-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:3px}
+.extract-val{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px}
+
+/* scan button */
+.scan-btn{width:100%;padding:14px;border-radius:12px;border:1px solid rgba(255,215,64,.5);background:linear-gradient(135deg,rgba(255,215,64,.18),rgba(64,196,255,.1));color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:10px}
+.scan-btn:hover{background:linear-gradient(135deg,rgba(255,215,64,.28),rgba(64,196,255,.18));transform:translateY(-1px)}
+.scan-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+
+/* pipeline */
+.pipeline{margin-top:18px;display:none}
+.pipeline.show{display:block}
+.pipe-step{display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;margin-bottom:8px;font-family:'DM Mono',monospace;font-size:12px;transition:all .3s}
+.pipe-step.waiting{background:rgba(255,255,255,.02);border:1px solid var(--border);color:var(--muted)}
+.pipe-step.running{background:rgba(255,215,64,.07);border:1px solid rgba(255,215,64,.3);color:var(--gold)}
+.pipe-step.done{background:rgba(0,230,118,.07);border:1px solid rgba(0,230,118,.3);color:var(--green)}
+.pipe-step.error{background:rgba(255,61,87,.07);border:1px solid rgba(255,61,87,.3);color:var(--red)}
+.pipe-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+.pipe-step.running .pipe-dot{animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+.pipe-detail{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* stats preview */
+.stats-preview{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-top:16px;display:none}
+.stats-preview.show{display:block}
+.sp-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:14px}
+.sp-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+.sp-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:4px}
+.sp-val{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#fff}
+.sp-val.found{color:var(--green)}
+.sp-val.missing{color:var(--muted);font-size:14px}
+.apply-btn{width:100%;padding:13px;border-radius:10px;border:1px solid var(--green);background:rgba(0,230,118,.08);color:var(--green);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;transition:all .2s}
+.apply-btn:hover{background:rgba(0,230,118,.15)}
+
+/* ── FORMULA ── */
+.formula{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px 30px;margin-bottom:36px;display:flex;flex-wrap:wrap;align-items:center;gap:20px;position:relative;overflow:hidden;opacity:0;animation:up .5s .4s forwards}
+.formula::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),transparent)}
+.f-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--green);text-transform:uppercase;margin-bottom:7px}
+.f-eq{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:#fff}
+.f-rules{display:flex;gap:12px;flex-wrap:wrap;margin-left:auto}
+.fbadge{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:13px}
+.fbadge.g{background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.3);color:var(--green)}
+.fbadge.r{background:rgba(255,61,87,.1);border:1px solid rgba(255,61,87,.3);color:var(--red)}
+
+/* ── CAPITAL ── */
+.cap-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:36px;opacity:0;animation:up .5s .5s forwards}
+.cap-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px}
+.cap-card label{display:block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.ccy{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gold)}
+.cap-wrap{display:flex;align-items:center;gap:8px}
+input[type=number]{background:transparent;border:none;border-bottom:2px solid var(--border);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:34px;width:130px;outline:none;transition:border-color .2s}
+input[type=number]:focus{border-bottom-color:var(--gold)}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{opacity:0}
+.mise-info{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-top:8px}
+.mise-v{color:var(--gold);font-weight:500}
+.qcalc{display:flex;align-items:center;gap:10px;margin-top:8px}
+.qnum{font-family:'Bebas Neue',sans-serif;font-size:44px;line-height:1;transition:color .3s}
+.qverdict{font-family:'DM Mono',monospace;font-size:13px;padding:6px 12px;border-radius:6px;transition:all .3s}
+.gcols{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+
+/* ── SPORT SECTIONS ── */
+.sport-sec{background:var(--surface);border:1px solid var(--border);border-radius:20px;margin-bottom:22px;overflow:hidden;opacity:0;animation:up .5s forwards}
+.sport-sec:nth-child(1){animation-delay:.58s}
+.sport-sec:nth-child(2){animation-delay:.68s}
+.sport-sec:nth-child(3){animation-delay:.78s}
+.sbar{height:3px}
+.football .sbar{background:var(--football)}
+.tennis .sbar{background:var(--tennis)}
+.hockey .sbar{background:var(--purple)}
+.shdr{display:flex;align-items:center;gap:14px;padding:18px 26px;cursor:pointer;user-select:none;transition:background .2s}
+.shdr:hover{background:rgba(255,255,255,.02)}
+.sicon{font-size:26px}
+.stitle{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px}
+.football .stitle{color:var(--football)}
+.tennis .stitle{color:var(--tennis)}
+.hockey .stitle{color:var(--purple)}
+.ssub{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:2px}
+.stog{margin-left:auto;font-family:'DM Mono',monospace;font-size:18px;color:var(--muted)}
+.sbody{padding:0 26px 26px;display:none}
+.sbody.open{display:block}
+.sec-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
+.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:22px}
+.ifield{display:flex;flex-direction:column;gap:7px}
+.ifield label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.ifield input{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'DM Mono',monospace;font-size:15px;padding:9px 13px;outline:none;transition:all .2s;width:100%}
+.ifield input:focus{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.05)}
+.ifield input.ai-fill{border-color:var(--gold)!important;background:rgba(255,215,64,.1)!important;box-shadow:0 0 0 3px rgba(255,215,64,.12);animation:gflash .6s ease}
+@keyframes gflash{0%{background:rgba(255,215,64,.3)!important}100%{background:rgba(255,215,64,.1)!important}}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.abox{border-radius:10px;padding:13px 15px;border:1px solid;transition:all .3s}
+.abox .albl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;opacity:.7}
+.abox .aval{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px}
+.abox.off{background:rgba(255,255,255,.02);border-color:var(--border);color:var(--muted)}
+.abox.yes{background:rgba(0,230,118,.08);border-color:rgba(0,230,118,.4);color:var(--green)}
+.abox.no{background:rgba(255,61,87,.08);border-color:rgba(255,61,87,.4);color:var(--red)}
+.vrow{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;padding:18px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.3);margin-top:6px}
+.vnum{font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:1;transition:color .3s}
+.vverd{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;padding:8px 18px;border-radius:8px;transition:all .3s}
+.vmise{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:right}
+.vmise span{display:block;font-size:16px;font-weight:500;color:var(--gold);margin-top:2px}
+.vrow.neu .vnum{color:var(--muted)}
+.vrow.neu .vverd{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)}
+.vrow.val .vnum{color:var(--green)}
+.vrow.val .vverd{background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.4)}
+.vrow.noval .vnum{color:var(--red)}
+.vrow.noval .vverd{background:rgba(255,61,87,.12);color:var(--red);border:1px solid rgba(255,61,87,.4)}
+.sep{height:1px;background:var(--border);margin:18px 0}
+.src-tag{display:inline-flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:14px;padding:4px 10px;border:1px solid var(--border);border-radius:4px}
+.ai-pill{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(255,215,64,.12);border:1px solid rgba(255,215,64,.3);color:var(--gold);display:none;margin-left:6px}
+.ai-pill.on{display:inline-block}
+
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:10px;font-family:'DM Mono',monospace;font-size:13px;z-index:9999;animation:up .3s forwards;white-space:nowrap}
+.toast.ok{background:rgba(0,230,118,.1);border:1px solid var(--green);color:var(--green)}
+.toast.err{background:rgba(255,61,87,.1);border:1px solid var(--red);color:var(--red)}
+
+@media(max-width:600px){
+  .cap-row,.gcols,.agrid{grid-template-columns:1fr}
+  .f-rules{margin-left:0}
+  .vnum{font-size:38px}
+}
+</style>
 </head>
+<body>
+<div class="wrap">
 
-<body style="background:black; color:white; text-align:center; font-family:sans-serif;">
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-tag">⚡ Système IA — Paris Sportifs</div>
+  <h1>VALUE<br>BETTING</h1>
+  <div class="hdr-sub">Photo Winamax → IA extrait les noms → recherche les stats → verdict instantané</div>
+</div>
 
-<h1>🔥 Multi Match Scanner 🔥</h1>
+<!-- ══ WINAMAX SCANNER ══ -->
+<div class="scanner">
+  <div class="scanner-hdr" onclick="toggleScanner()">
+    <span class="wlogo">📱</span>
+    <div class="scanner-titles">
+      <div class="scanner-title">SCAN WINAMAX</div>
+      <div class="scanner-sub">Photo du match → Recherche automatique des stats ⚽ Football &amp; 🎾 Tennis</div>
+    </div>
+    <div class="wbadge">IA + WEB</div>
+    <span class="toggler" id="scanToggler">＋</span>
+  </div>
 
-<p>Format : EquipeA,EquipeB,Cote</p>
+  <div class="scanner-body" id="scanBody">
 
-<textarea id="matches" rows="8" cols="30" placeholder="Paris,Marseille,1.80
-Real Madrid,Barcelone,2.10
-Bayern,Dortmund,1.60"></textarea>
+    <!-- Drop zone -->
+    <div class="dropz" id="dropz">
+      <input type="file" accept="image/*" id="fileIn" onchange="handleFile(this.files[0])">
+      <div class="drop-ic">📸</div>
+      <div class="drop-t">Photo Winamax ici</div>
+      <div class="drop-s">
+        Glisse ou clique — capture d'écran de n'importe quel match Winamax<br>
+        L'IA lit : <strong>équipes / joueurs</strong> · <strong>cotes</strong> · <strong>sport</strong><br>
+        Puis cherche automatiquement les stats sur <strong>FBRef</strong> &amp; <strong>Tennis Abstract</strong>
+      </div>
+    </div>
 
-<br><br>
+    <!-- Preview -->
+    <div class="prevwrap" id="prevwrap">
+      <img id="previmg" class="previmg" src="" alt="">
+      <button class="prevclear" onclick="clearImg()">✕</button>
+    </div>
 
-<button onclick="scan()">Scanner 💰</button>
+    <!-- Extracted info -->
+    <div class="extract-card" id="extractCard">
+      <div class="extract-title">🎯 Lu sur la photo Winamax</div>
+      <div class="extract-row" id="extractRow"></div>
+    </div>
 
-<div id="result"></div>
+    <!-- Scan button -->
+    <button class="scan-btn" id="scanBtn" onclick="runFullPipeline()" disabled>
+      🔍 &nbsp; ANALYSER LA PHOTO &amp; CHERCHER LES STATS
+    </button>
+
+    <!-- Pipeline steps -->
+    <div class="pipeline" id="pipeline">
+      <div class="pipe-step waiting" id="ps1"><div class="pipe-dot"></div><div><div>📸 Lecture de la photo Winamax</div><div class="pipe-detail" id="ps1d">En attente…</div></div></div>
+      <div class="pipe-step waiting" id="ps2"><div class="pipe-dot"></div><div><div>🌐 Recherche des statistiques en ligne</div><div class="pipe-detail" id="ps2d">En attente…</div></div></div>
+      <div class="pipe-step waiting" id="ps3"><div class="pipe-dot"></div><div><div>🧮 Calcul des indicateurs &amp; alertes</div><div class="pipe-detail" id="ps3d">En attente…</div></div></div>
+      <div class="pipe-step waiting" id="ps4"><div class="pipe-dot"></div><div><div>✅ Remplissage automatique des champs</div><div class="pipe-detail" id="ps4d">En attente…</div></div></div>
+    </div>
+
+    <!-- Stats preview -->
+    <div class="stats-preview" id="statsPreview">
+      <div class="sp-title">📊 Statistiques trouvées</div>
+      <div class="sp-grid" id="spGrid"></div>
+      <button class="apply-btn" onclick="applyStats()">✅ &nbsp; APPLIQUER AUX CALCULATEURS</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ FORMULA ══ -->
+<div class="formula">
+  <div>
+    <div class="f-lbl">La Formule</div>
+    <div class="f-eq">(COTE × PROBABILITÉ) ÷ 100</div>
+  </div>
+  <div class="f-rules">
+    <div class="fbadge g">✅ &gt; 1,05 → VALUE</div>
+    <div class="fbadge r">❌ &lt; 1,05 → PAS DE VALUE</div>
+  </div>
+</div>
+
+<!-- ══ CAPITAL ══ -->
+<div class="cap-row">
+  <div class="cap-card">
+    <label>Capital Actuel</label>
+    <div class="cap-wrap"><span class="ccy">€</span><input type="number" id="capital" value="100" min="1" oninput="updateCap()"></div>
+    <div class="mise-info">Mise (2%) : <span class="mise-v" id="miseG">2,00 €</span></div>
+  </div>
+  <div class="cap-card">
+    <label>Calculateur Rapide</label>
+    <div class="gcols">
+      <div class="ifield"><label>Cote</label><input type="number" id="gCote" placeholder="2.10" step="0.01" oninput="quickCalc()"></div>
+      <div class="ifield"><label>Proba %</label><input type="number" id="gProba" placeholder="55" oninput="quickCalc()"></div>
+    </div>
+    <div class="qcalc">
+      <div class="qnum" id="qNum" style="color:var(--muted)">—</div>
+      <div class="qverdict" id="qVerd" style="background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)">Entrer les données</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SPORT SECTIONS ══ -->
+<div id="sections"></div>
+
+</div><!-- /wrap -->
 
 <script>
-function getElo(team) {
-  const ratings = {
-    "Paris": 1900,
-    "Marseille": 1750,
-    "Real Madrid": 1950,
-    "Barcelone": 1930,
-    "Bayern": 1920,
-    "Dortmund": 1850
-  };
-  return ratings[team] || 1800;
+// ══════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════
+let imgB64 = null;
+let pipelineData = null; // {sport, team1, team2, cote, stats:{...}}
+
+// ══════════════════════════════════════════════════════════════════
+// CAPITAL & QUICK CALC
+// ══════════════════════════════════════════════════════════════════
+const cap = () => parseFloat(document.getElementById('capital').value) || 100;
+const mise = () => (cap() * .02).toFixed(2);
+
+function updateCap() {
+  document.getElementById('miseG').textContent = mise() + ' €';
+  ['football','tennis','hockey'].forEach(s => {
+    const el = document.getElementById('mise_' + s);
+    if (el) el.textContent = mise() + ' €';
+  });
 }
 
-function scan() {
-  const input = document.getElementById("matches").value;
-  const lines = input.split("\n");
+function quickCalc() {
+  const c = parseFloat(document.getElementById('gCote').value);
+  const p = parseFloat(document.getElementById('gProba').value);
+  const nEl = document.getElementById('qNum');
+  const vEl = document.getElementById('qVerd');
+  if (!c || !p) {
+    nEl.style.color='var(--muted)'; nEl.textContent='—';
+    vEl.textContent='Entrer les données';
+    vEl.style.cssText='background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)';
+    return;
+  }
+  const v = ((c*p)/100).toFixed(3);
+  nEl.textContent = v;
+  if (v>1.05) {
+    nEl.style.color='var(--green)';
+    vEl.textContent='✅ VALUE';
+    vEl.style.cssText='background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.4)';
+  } else {
+    nEl.style.color='var(--red)';
+    vEl.textContent='❌ PAS DE VALUE';
+    vEl.style.cssText='background:rgba(255,61,87,.12);color:var(--red);border:1px solid rgba(255,61,87,.4)';
+  }
+}
 
-  let output = "";
+// ══════════════════════════════════════════════════════════════════
+// SCANNER UI
+// ══════════════════════════════════════════════════════════════════
+function toggleScanner() {
+  const b = document.getElementById('scanBody');
+  const t = document.getElementById('scanToggler');
+  const open = b.classList.toggle('open');
+  t.textContent = open ? '－' : '＋';
+}
 
-  lines.forEach(line => {
-    try {
-      if (!line.trim()) return;
+function handleFile(file) {
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    imgB64 = e.target.result.split(',')[1];
+    document.getElementById('previmg').src = e.target.result;
+    document.getElementById('prevwrap').style.display = 'block';
+    document.getElementById('dropz').style.display = 'none';
+    document.getElementById('scanBtn').disabled = false;
+    resetPipeline();
+  };
+  r.readAsDataURL(file);
+}
 
-      const parts = line.split(",");
-      if (parts.length < 3) return;
+function clearImg() {
+  imgB64 = null; pipelineData = null;
+  document.getElementById('prevwrap').style.display = 'none';
+  document.getElementById('dropz').style.display = 'block';
+  document.getElementById('scanBtn').disabled = true;
+  document.getElementById('extractCard').classList.remove('show');
+  document.getElementById('pipeline').classList.remove('show');
+  document.getElementById('statsPreview').classList.remove('show');
+  document.getElementById('fileIn').value = '';
+  resetPipeline();
+}
 
-      const teamA = parts[0].trim();
-      const teamB = parts[1].trim();
-      const odds = parseFloat(parts[2]);
+// Drag & drop
+const dz = document.getElementById('dropz');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
 
-      if (!odds) return;
+function resetPipeline() {
+  ['ps1','ps2','ps3','ps4'].forEach(id => {
+    document.getElementById(id).className = 'pipe-step waiting';
+    document.getElementById(id+'d').textContent = 'En attente…';
+  });
+}
 
-      const eloA = getElo(teamA);
-      const eloB = getElo(teamB);
+function pipeState(id, state, detail) {
+  document.getElementById(id).className = 'pipe-step ' + state;
+  if (detail) document.getElementById(id+'d').textContent = detail;
+}
 
-      const probA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
-      const percent = Math.round(probA * 100);
-      const implied = Math.round((1 / odds) * 100);
+// ══════════════════════════════════════════════════════════════════
+// CLAUDE API CALL
+// ══════════════════════════════════════════════════════════════════
+async function callClaude(messages, tools) {
+  const body = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    messages
+  };
+  if (tools) body.tools = tools;
 
-      let verdict = percent > implied ? "💰 VALUE BET" : "❌";
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
 
-      output += teamA + " vs " + teamB +
-        " → " + percent + "% / " + implied + "% " + verdict + "<br>";
+function extractText(data) {
+  return (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+}
 
-    } catch (e) {
-      output += "⚠️ Erreur : " + line + "<br>";
+function parseJSON(text) {
+  try {
+    const m = text.replace(/```json|```/g,'').trim().match(/\{[\s\S]*\}/);
+    return m ? JSON.parse(m[0]) : null;
+  } catch { return null; }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// STEP 1 — Read Winamax photo
+// ══════════════════════════════════════════════════════════════════
+async function step1_readPhoto() {
+  pipeState('ps1','running','Analyse de la capture Winamax…');
+
+  const prompt = `Tu analyses une capture d'écran de l'application Winamax (site de paris sportifs français).
+Extrais ces informations précisément :
+- sport : "football" ou "tennis" uniquement
+- team1 : nom de l'équipe 1 ou joueur 1 (exactement comme écrit sur Winamax)
+- team2 : nom de l'équipe 2 ou joueur 2
+- cote1 : cote de victoire team1/joueur1 (nombre décimal)
+- cote2 : cote de victoire team2/joueur2
+- coteNul : cote du match nul si football (null si tennis)
+- competition : nom de la compétition/tournoi si visible
+- date : date du match si visible
+
+Réponds UNIQUEMENT avec un JSON valide, aucun texte autour :
+{"sport":"football","team1":"...","team2":"...","cote1":null,"cote2":null,"coteNul":null,"competition":null,"date":null}`;
+
+  const data = await callClaude([{
+    role: 'user',
+    content: [
+      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imgB64 } },
+      { type: 'text', text: prompt }
+    ]
+  }]);
+
+  const parsed = parseJSON(extractText(data));
+  if (!parsed || !parsed.sport) throw new Error('Impossible de lire les infos du match sur la photo');
+  pipeState('ps1','done', `${parsed.sport.toUpperCase()} : ${parsed.team1} vs ${parsed.team2}`);
+  return parsed;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// STEP 2 — Search stats online
+// ══════════════════════════════════════════════════════════════════
+async function step2_searchStats(matchInfo) {
+  pipeState('ps2','running', `Recherche stats pour ${matchInfo.team1} vs ${matchInfo.team2}…`);
+
+  const webSearchTool = [{
+    type: 'web_search_20250305',
+    name: 'web_search'
+  }];
+
+  let prompt = '';
+
+  if (matchInfo.sport === 'football') {
+    prompt = `Je prépare un pari sur le match de football : ${matchInfo.team1} vs ${matchInfo.team2}${matchInfo.competition ? ` (${matchInfo.competition})` : ''}.
+
+Fais des recherches web pour trouver les statistiques récentes de ces deux équipes sur FBRef, Soccerway, ou tout site de stats football.
+
+Je cherche PRÉCISÉMENT :
+1. xG moyen (Expected Goals) de ${matchInfo.team1} sur les 5 derniers matchs
+2. xGC moyen (Expected Goals Concédés) de ${matchInfo.team2} sur les 5 derniers matchs  
+3. Somme totale xG attendus pour ce match
+4. xGC moyen de l'équipe favorite sur ses 5 derniers matchs
+
+Après tes recherches, réponds UNIQUEMENT avec ce JSON (utilise null si non trouvé) :
+{"xgA":null,"xgcB":null,"xgTotal":null,"xgcFav":null,"favori":"${matchInfo.team1} ou ${matchInfo.team2}","source":"nom du site","notes":"ce que tu as trouvé"}`;
+
+  } else if (matchInfo.sport === 'tennis') {
+    prompt = `Je prépare un pari sur le match de tennis : ${matchInfo.team1} vs ${matchInfo.team2}${matchInfo.competition ? ` (${matchInfo.competition})` : ''}.
+
+Fais des recherches web pour trouver les statistiques de service récentes sur Tennis Abstract, ATP, WTA ou tout site de stats tennis.
+
+Je cherche PRÉCISÉMENT :
+1. Hold% (% de jeux de service gagnés) de ${matchInfo.team1} — saison en cours
+2. Hold% de ${matchInfo.team2} — saison en cours
+3. Hold% du favori
+4. Break% de l'adversaire (celui qui break le service du favori)
+
+Après tes recherches, réponds UNIQUEMENT avec ce JSON (utilise null si non trouvé) :
+{"hold1":null,"hold2":null,"holdFav":null,"breakAdv":null,"favori":"${matchInfo.team1} ou ${matchInfo.team2}","surface":"surface si connue","source":"nom du site","notes":"ce que tu as trouvé"}`;
+  }
+
+  const data = await callClaude([{ role: 'user', content: prompt }], webSearchTool);
+  const text = extractText(data);
+  const parsed = parseJSON(text);
+
+  if (parsed) {
+    pipeState('ps2','done', `Stats trouvées via ${parsed.source || 'web'}`);
+  } else {
+    pipeState('ps2','error', 'Stats partiellement trouvées — vérification manuelle possible');
+  }
+
+  return { matchInfo, stats: parsed || {}, rawText: text };
+}
+
+// ══════════════════════════════════════════════════════════════════
+// STEP 3 — Calculate proba from cotes
+// ══════════════════════════════════════════════════════════════════
+function step3_calcProba(matchInfo, favori) {
+  pipeState('ps3','running','Calcul de la probabilité implicite…');
+
+  // Determine which cote is for the favorite
+  let coteFav = null;
+  if (favori) {
+    const f = favori.toLowerCase();
+    if (f.includes(matchInfo.team1?.toLowerCase() || '___')) coteFav = matchInfo.cote1;
+    else if (f.includes(matchInfo.team2?.toLowerCase() || '___')) coteFav = matchInfo.cote2;
+  }
+  if (!coteFav) coteFav = Math.min(matchInfo.cote1 || 99, matchInfo.cote2 || 99);
+
+  // Implied probability = 1/cote * 100 (raw, before overround)
+  let proba = null;
+  if (coteFav && coteFav > 1) {
+    proba = parseFloat(((1 / coteFav) * 100).toFixed(1));
+  }
+
+  pipeState('ps3','done', coteFav ? `Cote favori : ${coteFav} → Proba implicite : ~${proba}%` : 'Probabilité calculée');
+  return { coteFav, proba };
+}
+
+// ══════════════════════════════════════════════════════════════════
+// FULL PIPELINE
+// ══════════════════════════════════════════════════════════════════
+async function runFullPipeline() {
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  document.getElementById('pipeline').classList.add('show');
+  document.getElementById('statsPreview').classList.remove('show');
+  document.getElementById('extractCard').classList.remove('show');
+  resetPipeline();
+
+  try {
+    // STEP 1 — Read photo
+    const matchInfo = await step1_readPhoto();
+
+    // Show extracted info
+    showExtractCard(matchInfo);
+
+    // STEP 2 — Search stats
+    const { stats, rawText } = await step2_searchStats(matchInfo);
+
+    // STEP 3 — Calc proba
+    const { coteFav, proba } = step3_calcProba(matchInfo, stats.favori);
+    pipelineData = { matchInfo, stats, coteFav, proba };
+
+    // STEP 4 — Preview
+    pipeState('ps4','running','Préparation de l\'affichage…');
+    buildStatsPreview(matchInfo, stats, coteFav, proba);
+    pipeState('ps4','done','Prêt — cliquez pour appliquer');
+
+  } catch(err) {
+    ['ps1','ps2','ps3','ps4'].forEach(id => {
+      if (document.getElementById(id).classList.contains('running')) {
+        pipeState(id, 'error', err.message);
+      }
+    });
+    showToast('❌ ' + err.message, 'err');
+  }
+
+  btn.disabled = false;
+}
+
+function showExtractCard(info) {
+  const row = document.getElementById('extractRow');
+  const chips = [
+    { lbl: 'Sport', val: info.sport?.toUpperCase() || '?' },
+    { lbl: info.sport === 'tennis' ? 'Joueur 1' : 'Équipe 1', val: info.team1 || '?' },
+    { lbl: info.sport === 'tennis' ? 'Joueur 2' : 'Équipe 2', val: info.team2 || '?' },
+    { lbl: 'Cote 1', val: info.cote1 || '?' },
+    { lbl: 'Cote 2', val: info.cote2 || '?' },
+  ];
+  if (info.competition) chips.push({ lbl: 'Compétition', val: info.competition });
+  if (info.date) chips.push({ lbl: 'Date', val: info.date });
+
+  row.innerHTML = chips.map(c => `
+    <div class="extract-chip">
+      <div class="extract-lbl">${c.lbl}</div>
+      <div class="extract-val">${c.val}</div>
+    </div>
+  `).join('');
+  document.getElementById('extractCard').classList.add('show');
+}
+
+function buildStatsPreview(matchInfo, stats, coteFav, proba) {
+  const grid = document.getElementById('spGrid');
+  let items = [];
+
+  if (matchInfo.sport === 'football') {
+    items = [
+      { lbl: 'xG Moy Équipe A', val: stats.xgA },
+      { lbl: 'xGC Moy Équipe B', val: stats.xgcB },
+      { lbl: 'Somme xG Total', val: stats.xgTotal },
+      { lbl: 'xGC Favori (5M)', val: stats.xgcFav },
+      { lbl: 'Cote Favori', val: coteFav },
+      { lbl: 'Proba Implicite', val: proba ? proba + '%' : null },
+      { lbl: 'Favori', val: stats.favori },
+      { lbl: 'Source', val: stats.source },
+    ];
+  } else {
+    items = [
+      { lbl: 'Hold% Joueur 1', val: stats.hold1 ? stats.hold1 + '%' : null },
+      { lbl: 'Hold% Joueur 2', val: stats.hold2 ? stats.hold2 + '%' : null },
+      { lbl: 'Hold% Favori', val: stats.holdFav ? stats.holdFav + '%' : null },
+      { lbl: 'Break% Adversaire', val: stats.breakAdv ? stats.breakAdv + '%' : null },
+      { lbl: 'Surface', val: stats.surface },
+      { lbl: 'Cote Favori', val: coteFav },
+      { lbl: 'Proba Implicite', val: proba ? proba + '%' : null },
+      { lbl: 'Source', val: stats.source },
+    ];
+  }
+
+  grid.innerHTML = items.map(it => `
+    <div class="sp-item">
+      <div class="sp-lbl">${it.lbl}</div>
+      <div class="sp-val ${it.val != null ? 'found' : 'missing'}">${it.val != null ? it.val : '—'}</div>
+    </div>
+  `).join('');
+
+  if (stats.notes) {
+    grid.innerHTML += `<div class="sp-item" style="grid-column:1/-1"><div class="sp-lbl">Notes IA</div><div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);line-height:1.6">${stats.notes}</div></div>`;
+  }
+
+  document.getElementById('statsPreview').classList.add('show');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// APPLY STATS TO FIELDS
+// ══════════════════════════════════════════════════════════════════
+function applyStats() {
+  if (!pipelineData) return;
+  const { matchInfo, stats, coteFav, proba } = pipelineData;
+  const sport = matchInfo.sport;
+
+  if (!['football','tennis'].includes(sport)) {
+    showToast('Sport non supporté pour le remplissage auto', 'err'); return;
+  }
+
+  // Open section
+  const body = document.getElementById('body_' + sport);
+  const tog = document.getElementById('tog_' + sport);
+  if (body && !body.classList.contains('open')) {
+    body.classList.add('open');
+    tog.textContent = '－';
+  }
+
+  const fillField = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val != null) {
+      el.value = val;
+      el.classList.add('ai-fill');
+      setTimeout(() => el.classList.remove('ai-fill'), 2500);
     }
+  };
+
+  if (sport === 'football') {
+    fillField('football_cote', coteFav);
+    fillField('football_proba', proba);
+    fillField('football_xgA', stats.xgA);
+    fillField('football_xgcB', stats.xgcB);
+    fillField('football_xgTotal', stats.xgTotal);
+    fillField('football_xgcFav', stats.xgcFav);
+  } else {
+    fillField('tennis_cote', coteFav);
+    fillField('tennis_proba', proba);
+    fillField('tennis_hold1', stats.hold1);
+    fillField('tennis_hold2', stats.hold2);
+    fillField('tennis_holdFav', stats.holdFav);
+    fillField('tennis_breakAdv', stats.breakAdv);
+  }
+
+  calcSport(sport);
+
+  const pill = document.getElementById('aipill_' + sport);
+  if (pill) pill.classList.add('on');
+
+  document.querySelector(`.sport-sec.${sport}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  showToast(`✅ Champs ${sport} remplis automatiquement`, 'ok');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SPORTS CONFIG
+// ══════════════════════════════════════════════════════════════════
+const sports = [
+  {
+    id:'football', label:'Football', icon:'⚽', sub:'Stratégie xG — Expected Goals', source:'FBRef / Soccerway',
+    fields:[
+      {id:'cote',label:'Cote Favori',ph:'2.20'},
+      {id:'proba',label:'Proba % estimée',ph:'55'},
+      {id:'xgA',label:'xG Moy Équipe A',ph:'1.4'},
+      {id:'xgcB',label:'xGC Moy Équipe B',ph:'1.2'},
+      {id:'xgTotal',label:'Somme xG des 2',ph:'2.0'},
+      {id:'xgcFav',label:'xGC Favori (5M)',ph:'0.60'},
+    ],
+    alerts:[
+      {id:'u25',label:'Under 2,5 Buts',desc:'Somme xG < 2,2',check:v=>v.xgTotal>0&&v.xgTotal<2.2,yes:'✅ UNDER 2,5 — Peu de buts attendus',no:'❌ xG total ≥ 2,2'},
+      {id:'cs',label:'Clean Sheet Favori',desc:'xGC favori < 0,70 / 5 matchs',check:v=>v.xgcFav>0&&v.xgcFav<0.70,yes:'✅ CLEAN SHEET probable',no:'❌ xGC trop élevé'},
+    ],
+    computed:v=>(v.xgA&&v.xgcB)?`Score estimé : ${(+v.xgA + +v.xgcB).toFixed(2)} buts attendus`:null
+  },
+  {
+    id:'tennis', label:'Tennis', icon:'🎾', sub:'Stratégie des Serveurs — Hold %', source:'Tennis Abstract',
+    fields:[
+      {id:'cote',label:'Cote Favori',ph:'1.85'},
+      {id:'proba',label:'Proba % estimée',ph:'60'},
+      {id:'hold1',label:'Hold % Joueur 1',ph:'82'},
+      {id:'hold2',label:'Hold % Joueur 2',ph:'79'},
+      {id:'holdFav',label:'Hold % Favori',ph:'87'},
+      {id:'breakAdv',label:'Break % Adversaire',ph:'12'},
+    ],
+    alerts:[
+      {id:'ov22',label:'Over 22,5 Jeux',desc:'Hold% J1 > 80% ET Hold% J2 > 80%',check:v=>v.hold1>80&&v.hold2>80,yes:'✅ OVER — Sets longs (6-4, 7-6)',no:'❌ Conditions non remplies'},
+      {id:'v20',label:'Victoire 2-0',desc:'Hold% Favori > 85% ET Break% Adv < 15%',check:v=>v.holdFav>85&&v.breakAdv<15,yes:'✅ 2-0 PROBABLE — Service dominant',no:'❌ Conditions non remplies'},
+    ]
+  },
+  {
+    id:'hockey', label:'Hockey', icon:'🏒', sub:'Stratégie Power Play — PP% / PK%', source:'Elite Prospects / NHL',
+    fields:[
+      {id:'cote',label:'Cote',ph:'1.70'},
+      {id:'proba',label:'Proba %',ph:'65'},
+      {id:'pp',label:'PP% Équipe',ph:'27'},
+      {id:'pk',label:'PK% Adversaire',ph:'72'},
+      {id:'save1',label:'Save% Gardien 1',ph:'93'},
+      {id:'save2',label:'Save% Gardien 2',ph:'91'},
+    ],
+    alerts:[
+      {id:'pl',label:'Puck Line (-1,5)',desc:'PP% > 25% ET PK% Adv < 75%',check:v=>v.pp>25&&v.pk<75,yes:'✅ PUCK LINE — Écart probable',no:'❌ Conditions non remplies'},
+      {id:'u55',label:'Under 5,5 Buts',desc:'Save% G1 > 92% ET Save% G2 > 92%',check:v=>v.save1>92&&v.save2>92,yes:'✅ UNDER 5,5 — Gardiens dominants',no:'❌ Save% insuffisant'},
+    ]
+  }
+];
+
+function buildSections() {
+  const cont = document.getElementById('sections');
+  sports.forEach(sp => {
+    const div = document.createElement('div');
+    div.className = `sport-sec ${sp.id}`;
+    div.innerHTML = `
+      <div class="sbar"></div>
+      <div class="shdr" onclick="toggleSport('${sp.id}')">
+        <span class="sicon">${sp.icon}</span>
+        <div>
+          <div style="display:flex;align-items:center">
+            <div class="stitle">${sp.label}</div>
+            <span class="ai-pill" id="aipill_${sp.id}">IA</span>
+          </div>
+          <div class="ssub">${sp.sub}</div>
+        </div>
+        <span class="stog" id="tog_${sp.id}">＋</span>
+      </div>
+      <div class="sbody" id="body_${sp.id}">
+        <div class="sec-lbl">Paramètres</div>
+        <div class="igrid">
+          ${sp.fields.map(f=>`<div class="ifield"><label>${f.label}</label><input type="number" id="${sp.id}_${f.id}" placeholder="${f.ph}" step="0.01" oninput="calcSport('${sp.id}')"></div>`).join('')}
+        </div>
+        <div class="sep"></div>
+        <div class="sec-lbl">Alertes Stratégiques</div>
+        <div class="agrid">
+          ${sp.alerts.map(a=>`<div class="abox off" id="ab_${sp.id}_${a.id}"><div class="albl">${a.label}</div><div class="aval" id="av_${sp.id}_${a.id}">— ${a.desc}</div></div>`).join('')}
+        </div>
+        ${sp.computed?`<div id="comp_${sp.id}" style="margin-bottom:12px;color:var(--gold);font-family:'DM Mono',monospace;font-size:13px"></div>`:''}
+        <div class="sep"></div>
+        <div class="sec-lbl">Résultat Value</div>
+        <div class="vrow neu" id="vr_${sp.id}">
+          <div><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase">Valeur</div><div class="vnum" id="vn_${sp.id}">—</div></div>
+          <div class="vverd" id="vv_${sp.id}">Entrer les données</div>
+          <div class="vmise">Mise conseillée<br><span id="mise_${sp.id}">${mise()} €</span></div>
+        </div>
+        <div class="src-tag">📊 ${sp.source}</div>
+      </div>`;
+    cont.appendChild(div);
+  });
+}
+
+function toggleSport(id) {
+  const b = document.getElementById('body_'+id);
+  const t = document.getElementById('tog_'+id);
+  const open = b.classList.contains('open');
+  b.classList.toggle('open',!open);
+  t.textContent = open ? '＋' : '－';
+}
+
+function gv(sport, field) {
+  const el = document.getElementById(`${sport}_${field}`);
+  return el ? (parseFloat(el.value)||0) : 0;
+}
+
+function calcSport(sid) {
+  const sp = sports.find(s=>s.id===sid);
+  const v = {};
+  sp.fields.forEach(f => v[f.id] = gv(sid, f.id));
+  const hasData = sp.fields.some(f => v[f.id]>0);
+
+  sp.alerts.forEach(a => {
+    const box = document.getElementById(`ab_${sid}_${a.id}`);
+    const txt = document.getElementById(`av_${sid}_${a.id}`);
+    if (!hasData) { box.className='abox off'; txt.textContent='— '+a.desc; return; }
+    const ok = a.check(v);
+    box.className = ok ? 'abox yes' : 'abox no';
+    txt.textContent = ok ? a.yes : a.no;
   });
 
-  document.getElementById("result").innerHTML =
-    output || "Aucun résultat ⚠️";
-}
-</script>
+  if (sp.computed) {
+    const el = document.getElementById(`comp_${sid}`);
+    if (el) el.textContent = sp.computed(v) || '';
+  }
 
+  const cote = v.cote, proba = v.proba;
+  const numEl = document.getElementById(`vn_${sid}`);
+  const verdEl = document.getElementById(`vv_${sid}`);
+  const rowEl = document.getElementById(`vr_${sid}`);
+
+  if (!cote||!proba) { numEl.textContent='—'; verdEl.textContent='Entrer les données'; rowEl.className='vrow neu'; return; }
+  const val = ((cote*proba)/100).toFixed(3);
+  numEl.textContent = val;
+  rowEl.className = val>1.05 ? 'vrow val' : 'vrow noval';
+  verdEl.textContent = val>1.05 ? '✅ VALUE — MISER' : '❌ PAS DE VALUE';
+}
+
+function showToast(msg, type='ok') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3500);
+}
+
+// INIT
+buildSections();
+updateCap();
+</script>
 </body>
 </html>
