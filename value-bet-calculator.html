@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Value Bet Calculator - Ta Formule</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0f0f0f; color: #0f0; padding: 20px; }
+        h1, h2 { color: #0f0; text-align: center; }
+        .container { max-width: 900px; margin: auto; background: #1a1a1a; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px #0f0; }
+        input, select, button { padding: 10px; margin: 8px 0; width: 100%; font-size: 16px; }
+        button { background: #0f0; color: #000; font-weight: bold; cursor: pointer; }
+        button:hover { background: #0c0; }
+        .result { font-size: 1.4em; font-weight: bold; text-align: center; margin: 15px 0; }
+        .green { color: #0f0; }
+        .red { color: #f00; }
+        .section { margin: 25px 0; padding: 15px; border: 1px solid #0f0; border-radius: 8px; }
+        .alert { padding: 10px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Value Bet Calculator</h1>
+        <p style="text-align:center;">Ta formule universelle : <strong>(Cote × Probabilité estimée) / 100</strong></p>
+
+        <!-- Formule Universelle -->
+        <div class="section">
+            <h2>Formule Universelle (tous sports)</h2>
+            <label>Cote (décimale, ex: 2.10)</label>
+            <input type="number" id="cote" step="0.01" value="2.10">
+
+            <label>Probabilité estimée (%) (ex: 55)</label>
+            <input type="number" id="prob" step="0.1" value="55">
+
+            <button onclick="calculerValue()">🔍 Calculer Value</button>
+
+            <div id="resultValue" class="result"></div>
+        </div>
+
+        <!-- Mise suggérée -->
+        <div class="section">
+            <h2>Mise suggérée (Kelly simplifié)</h2>
+            <label>Capital actuel (€)</label>
+            <input type="number" id="capital" step="1" value="100">
+            <button onclick="calculerMise()">💵 Calculer la mise (2%)</button>
+            <div id="resultMise" class="result"></div>
+        </div>
+
+        <!-- Tennis -->
+        <div class="section">
+            <h2>🎾 Tennis - Stratégie des Serveurs</h2>
+            <label>Hold % Joueur 1 (Favori)</label>
+            <input type="number" id="hold1" step="0.1" value="85">
+
+            <label>Hold % Joueur 2</label>
+            <input type="number" id="hold2" step="0.1" value="78">
+
+            <label>Break % Adversaire (Joueur 2)</label>
+            <input type="number" id="break2" step="0.1" value="12">
+
+            <button onclick="tennisAlert()">🎾 Analyser Tennis</button>
+            <div id="resultTennis" class="result"></div>
+        </div>
+
+        <!-- Football -->
+        <div class="section">
+            <h2>⚽ Football - Stratégie xG</h2>
+            <label>xG moyen Équipe A (Favori)</label>
+            <input type="number" id="xgA" step="0.01" value="1.8">
+
+            <label>xG moyen Équipe B</label>
+            <input type="number" id="xgB" step="0.01" value="0.9">
+
+            <label>xGC moyen Favori (5 derniers matchs)</label>
+            <input type="number" id="xgc" step="0.01" value="0.65">
+
+            <button onclick="footballAlert()">⚽ Analyser Football</button>
+            <div id="resultFootball" class="result"></div>
+        </div>
+
+        <!-- Hockey -->
+        <div class="section">
+            <h2>🏒 Hockey - Stratégie Power Play</h2>
+            <label>PP% Équipe A (Favori)</label>
+            <input type="number" id="pp" step="0.1" value="26">
+
+            <label>PK% Équipe B</label>
+            <input type="number" id="pk" step="0.1" value="72">
+
+            <label>Save % Gardiens (moyenne)</label>
+            <input type="number" id="save" step="0.1" value="93">
+
+            <button onclick="hockeyAlert()">🏒 Analyser Hockey</button>
+            <div id="resultHockey" class="result"></div>
+        </div>
+
+        <p style="text-align:center; font-size:0.9em; margin-top:30px;">
+            Sources conseillées : Tennis Abstract • FBRef • Elite Prospects<br>
+            Règle : Value > 1.05 = ✅ Mise (2% de ton capital)
+        </p>
+    </div>
+
+    <script>
+        function calculerValue() {
+            const cote = parseFloat(document.getElementById('cote').value);
+            const prob = parseFloat(document.getElementById('prob').value);
+            if (!cote || !prob) return;
+
+            const value = (cote * prob) / 100;
+            const res = document.getElementById('resultValue');
+
+            if (value > 1.05) {
+                res.innerHTML = `✅ <span class="green">VALUE ! (${value.toFixed(2)})</span><br>Tu peux miser.`;
+            } else {
+                res.innerHTML = `❌ <span class="red">Pas de value (${value.toFixed(2)})</span><br>Trop risqué.`;
+            }
+        }
+
+        function calculerMise() {
+            const capital = parseFloat(document.getElementById('capital').value);
+            if (!capital) return;
+            const mise = (capital * 0.02).toFixed(2);
+            document.getElementById('resultMise').innerHTML = `💵 Mise recommandée : <span class="green">${mise} €</span> (2% de ton capital)`;
+        }
+
+        function tennisAlert() {
+            const hold1 = parseFloat(document.getElementById('hold1').value);
+            const hold2 = parseFloat(document.getElementById('hold2').value);
+            const break2 = parseFloat(document.getElementById('break2').value);
+            let msg = "";
+
+            if (hold1 > 80 && hold2 > 80) {
+                msg += "✅ Alerte Over Jeux (>22.5) : Les deux ont un très bon Hold % → sets longs !<br>";
+            }
+            if (hold1 > 85 && break2 < 15) {
+                msg += "✅ Alerte Victoire 2-0 du favori : Il tient son service facilement !<br>";
+            }
+            if (msg === "") msg = "❌ Pas d'alerte tennis claire avec ces stats.";
+
+            document.getElementById('resultTennis').innerHTML = msg;
+        }
+
+        function footballAlert() {
+            const xgA = parseFloat(document.getElementById('xgA').value);
+            const xgB = parseFloat(document.getElementById('xgB').value);
+            const xgc = parseFloat(document.getElementById('xgc').value);
+            let msg = "";
+
+            const sumXg = xgA + xgB;
+            if (sumXg < 2.2) {
+                msg += "✅ Alerte Under 2.5 buts : Somme xG faible !<br>";
+            }
+            if (xgc < 0.70) {
+                msg += "✅ Alerte Clean Sheet probable pour le favori !<br>";
+            }
+            if (msg === "") msg = "❌ Pas d'alerte xG forte.";
+
+            document.getElementById('resultFootball').innerHTML = msg;
+        }
+
+        function hockeyAlert() {
+            const pp = parseFloat(document.getElementById('pp').value);
+            const pk = parseFloat(document.getElementById('pk').value);
+            const save = parseFloat(document.getElementById('save').value);
+            let msg = "";
+
+            if (pp > 25 && pk < 75) {
+                msg += "✅ Alerte Puck Line (-1.5) : Power Play très efficace !<br>";
+            }
+            if (save > 92) {
+                msg += "✅ Alerte Under 5.5 buts (surtout en play-offs) : Gardiens excellents !<br>";
+            }
+            if (msg === "") msg = "❌ Pas d'alerte hockey claire.";
+
+            document.getElementById('resultHockey').innerHTML = msg;
+        }
+    </script>
+</body>
+              </html>
